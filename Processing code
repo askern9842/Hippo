@@ -1,0 +1,66 @@
+
+import processing.serial.*;
+
+PImage[] images = new PImage[181];
+PImage[] images2 = new PImage[360];
+PImage[] images3 = new PImage[181];
+
+int  encoderVal;
+int  swCount;
+int  swC;
+
+Serial myPort;
+
+void setup() {
+  size(700, 700);
+  println(Serial.list());
+  myPort = new Serial(this, Serial.list()[0], 9600);
+  myPort.bufferUntil('\n');
+  
+  for(int i = 0; i <181; i++){
+    images[i] = loadImage(i+".png");
+  }
+  
+  for(int i = 181; i <541; i++){
+    images2[i-181] = loadImage(i+".png");
+  }
+  
+  for(int i = 541; i <721; i++){
+    images3[i-541] = loadImage(i+".png");
+  }
+}
+
+void draw() {
+  
+  if((swC <= 5 || swC >=355) && (swCount <= 5 || swCount >= 175)){
+    background(255);
+  image(images[encoderVal],0,0);
+  }
+  
+  
+  else if(encoderVal >=175 &&(swC > 5 || swC < 355) && (swCount <= 5 || swCount >= 175) ){
+    background(255);
+  image(images2[swC],0,0);
+  }
+  
+  else if(swCount > 5 || swCount < 175){
+    background(255);
+  image(images3[swCount],0,0);
+  }
+}
+
+
+void serialEvent(Serial myPort) {
+  // get the ASCII string:
+  String inString = myPort.readStringUntil('\n');
+
+  if (inString != null) {
+    inString = trim(inString);
+    int[] colors = int(split(inString, ","));
+    if (colors.length >=3) {
+      encoderVal = colors[0];
+      swCount = colors[1];
+      swC = colors[2];
+    }
+  }
+}
